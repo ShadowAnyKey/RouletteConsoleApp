@@ -4,6 +4,6 @@
     {
         private readonly Random _rnd = new();
 
-        public int Next(int minValue, int maxValue) => _rnd.Next(minValue, maxValue + 1);
+        public int GetRandomNumber(int minValue, int maxValue) => _rnd.Next(minValue, maxValue);
     }
 }

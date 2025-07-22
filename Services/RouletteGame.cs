@@ -3,7 +3,8 @@
     public class RouletteGame : IRouletteGame
     {
         private readonly IRandomNumberGenerator _rng;
-        
+        private string _rules;
+
         public RouletteGame(IRandomNumberGenerator rng)
         {
             _rng = rng;
@@ -11,42 +12,48 @@
 
         public GamerInfo Info()
         {
-            int score;
-            Console.WriteLine("Приветсвую тебя, лудик. Как тебя зовут? ");
+            int initialDeposit;
+            Console.WriteLine("Приветствую вас, Игрок. Как вас зовут?");
             string? name = Console.ReadLine();
-            Console.WriteLine($"Привет, {name}. Сколько хочешь депнуть сегодня? Минималка косарь");
+            Console.WriteLine($"Здравствуйте, {name}. Сколько вы хотите внести на депозит сегодня?");
+            Console.WriteLine("Минимальная сумма для взноса - 1000 монет");
 
             while (true)
             {
                 try
                 {
-                    score = Convert.ToInt32(Console.ReadLine());
-                    if (score >= 1000)
-                    {
-                        break;
-                    }
+                    initialDeposit = Convert.ToInt32(Console.ReadLine());
+                    if (initialDeposit >= 1000) break;
                     else
                     {
-                        Console.WriteLine("Сумма деппа не может быть отрицательной или быть меньше минималки");
-                        continue;
+                        Console.WriteLine("Сумма депозита не может быть меньше минимальной");
+
                     }
                 }
                 catch
                 {
-                    Console.WriteLine("Неправильная сумма. Введите корректное число");
+                    Console.WriteLine("Введите корректное число");
                     continue;
                 }
             }
 
+            _rules = "Правила следующие.\n" +
+                "Вы должны угадать число от 1 до 10.\n" +
+                "Если вы угадываете число, ваша ставка увеличится в 10 раз\n" +
+                "Если проиграете, ваша ставка сгорит";
+
+            Console.WriteLine(_rules);
+
             return new GamerInfo
             {
                 Name = name,
-                Score = score
+                InitialDeposit = initialDeposit,
             };
         }
+
         public GameResult Play(int guess, int deposit, int stavka)
         {
-            int gameResults;
+            int gameResult;
 
             if (stavka < 100)
             {
@@ -75,18 +82,20 @@
                 };
             }
 
-            int winning = _rng.Next(1, 10);
+            int winning = _rng.GetRandomNumber(1, 10);
             bool winResult = guess == winning;
-            if (winResult == true)
+
+            if (winResult)
             {
-                gameResults = stavka * 10;
-                deposit = deposit + gameResults;
+                gameResult = stavka * 10;
+                deposit = deposit + gameResult;
+
                 return new GameResult
                 {
                     IsWin = true,
                     WinningNumber = winning,
                     Deposit = deposit,
-                    Message = $"Поздравляю! Загаданное число было {winning}. Ты выиграл {gameResults}! Теперь твой счёт составляет {deposit}"
+                    Message = $"Поздравляю! Загаданное число было {winning}. Ты выиграл {gameResult}! Теперь твой счёт составляет {deposit}"
                 };
             }
             else
